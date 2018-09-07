@@ -1,3 +1,0 @@
-pandas=0.23.3=py36h6440ff4_0
-numpy=1.14.5=py36h648b28d_4
-numpy-base=1.14.5=py36ha9ae307_4
