@@ -5,7 +5,7 @@ import file_IO
 metadata = "./5_Metadata"
 folder = "./1_JournalCorpus_txt/"
 parent = os.listdir(folder)[1:]
-print(parent)
+# print(parent)
 
 for root, dirs, files in os.walk(metadata):
     for file in files:
@@ -38,3 +38,4 @@ for root, dirs, files in os.walk(metadata):
                 location.append(loc)
             accuracy.append(maxAcc)
         excel_IO.writeMeta(exl,location,accuracy)
+        i += 1
