@@ -3,6 +3,7 @@ import os.path
 
 def readFile(filename,size, val):
     acc = 0
+    doi_found = False
     fileObj = open(filename, "r")
     data = fileObj.read(size)
     if str(val[0]) in data:
@@ -13,4 +14,5 @@ def readFile(filename,size, val):
         acc += 15
     if str(val[3]) in data:
         acc += 45
-    return (filename, acc)
+        doi_found = True
+    return (filename, acc, doi_found)
