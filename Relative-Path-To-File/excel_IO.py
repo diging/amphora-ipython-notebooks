@@ -12,16 +12,22 @@ def readMeta(fileName):
     values = []
     for val in zip(titles,years,volumes,dois):
         if isinstance(val[3], str):
-            if not isnan(val[2]):
+            if val[2] == '':
+                val = (val[0], val[1], str(val[2]), val[3])
+            elif not isnan(val[2]):
                 val = (val[0], val[1], int(val[2]), val[3])
             values.append(val)
     return values
 
-def writeMeta(filename, loc, acc):
+def writeMeta(filename,title,year,volume,DOI,loc,acc):
     df = pd.DataFrame(
         {
-        "Location" : loc,
-        "Accuracy" : acc
+            "Title"     : title,
+            "Year"      : year,
+            "Volume"    : volume,
+            "DOI"       : DOI,
+            "Location"  : loc,
+            "Accuracy"  : acc
         }
     )
     with ExcelWriter(filename, mode="a") as writer:
