@@ -45,8 +45,10 @@ for root, dirs, files in os.walk(metadata):
                             maxAcc = acc
                             # if maxAcc > 64:
                                 # print(val, loc, maxAcc)
-                    if maxAcc > 50: #chnage to 44
+                    if maxAcc > 44: #changed from 50
                         if(loc):
+                            os.remove(loc) #remove the file
+                            files1.remove(file)
                             relative_loc = os.path.relpath(loc)
                             location[index]=(relative_loc)
                         else:

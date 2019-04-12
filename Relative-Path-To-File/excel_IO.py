@@ -11,12 +11,21 @@ def readMeta(fileName):
     dois = df["DOI"]
     values = []
     for val in zip(titles,years,volumes,dois):
-        if isinstance(val[3], str):
-            if val[2] == '':
-                val = (val[0], val[1], str(val[2]), val[3])
-            elif not isnan(val[2]):
-                val = (val[0], val[1], int(val[2]), val[3])
-            values.append(val)
+        if isinstance(val[3],str):
+            try:
+                pii = tuple([(str(val[3]).split('/'))[1]])
+            except:
+                print(str(val[3]))
+        elif isnan(val[3]):
+            pii = tuple([str("")])
+        val += pii
+        # print(val + pii)
+        if val[2] == '':
+            val = (val[0], val[1], str(val[2]), val[3], val[4])
+        elif not isnan(val[2]):
+            val = (val[0], val[1], int(val[2]), val[3], val[4])
+        # print(val)
+        values.append(val)
     return values
 
 def writeMeta(filename,title,year,volume,DOI,loc,acc):
