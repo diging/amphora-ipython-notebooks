@@ -1,9 +1,11 @@
 import os
 import excel_IO
 import file_IO
+import shutil
 
 metadata = "./5_Metadata"
 folder = "./1_JournalCorpus_txt/"
+dest = "./Not_Found"
 parent = os.listdir(folder)[1:]
 
 metaList = list()
@@ -47,6 +49,7 @@ for i, exl in enumerate(metaList):
     PII = [""] * len(checkFor)
     location = [""] * len(checkFor)
     accuracy = [""] * len(checkFor)
+    extra = {}
     
     for index,val in enumerate(checkFor):
         
@@ -59,7 +62,10 @@ for i, exl in enumerate(metaList):
         loc = ''
         j = 0
 
-        for target, size in zip(listOfFiles, sizes):
+        # if val[1] <= 2005:
+        #     continue
+
+        for i, (target, size) in enumerate(zip(listOfFiles, sizes)):
 
             if j != val[1]:
                 j = val[1]
@@ -78,23 +84,94 @@ for i, exl in enumerate(metaList):
                     #     print(val, loc, maxAcc)
             
             if maxAcc > 44:
+
+                extra[val] = loc
                 
-                if(loc):
+                if(len(loc) > 2):
                     relative_loc = os.path.relpath(loc)
                     location[index]=(relative_loc)
 
-                    #remove the file
-                    
+                    # Remove the file
                     # os.remove(target[0])
 
+                    # Remove from the list
                     # listOfFiles.remove(i)
+                    # del listOfFiles[i]
                     # sizes.remove(i)
+                    # del sizes[i]
 
                 else:
                     location[index]=(loc)
                 
                 accuracy[index]=(maxAcc)
-    
+        
+        # Remove val from List
+        # del checkFor[index]
+
+    extra_loc = set(extra.values())
+    extra_val = set(extra.keys())
+
+    for index,val in enumerate(checkFor):
+
+        if val in extra_val:
+            continue
+
+        # if val[1] <= 2005:
+        #     continue
+
+        title[index] = val[0]
+        year[index] = val[1]
+        volume[index] = val[2]
+        DOI[index] = val[3]
+        PII[index] = val[4]
+        maxAcc = 0
+        loc = ''
+        j = 0
+
+        for i, (target, size) in enumerate(zip(listOfFiles, sizes)):
+
+            if target in extra_loc:
+                continue
+
+            if j != val[1]:
+                j = val[1]
+                print(j)
+            
+            link, acc, found = file_IO.readFile(target, size, val)
+            
+            if acc > maxAcc and found:
+                loc = link
+                maxAcc = acc
+                # if maxAcc > 64:
+                #     print(val, loc, maxAcc)
+            
+            if maxAcc > 44:
+                
+                if(loc):
+                    relative_loc = os.path.relpath(loc)
+                    location[index]=(relative_loc)
+
+                    # Remove the file
+                    # os.remove(target[0])
+
+                    # Remove from the list
+                    # listOfFiles.remove(i)
+                    # del listOfFiles[i]
+                    # sizes.remove(i)
+                    # del sizes[i]
+
+                else:
+                    location[index]=(loc)
+                
+                accuracy[index]=(maxAcc)
+
+    for srcfile in listOfFiles:
+        if not srcfile in extra_loc:
+            assert not os.path.isabs(srcfile)
+            dstdir =  os.path.join(dest, os.path.dirname(srcfile))
+            os.makedirs(dstdir, exist_ok=True)
+            shutil.copy(srcfile, dstdir)
+
     # print(location,accuracy)
     excel_IO.writeMeta(exl,title,year,volume,DOI,location,accuracy)
     break

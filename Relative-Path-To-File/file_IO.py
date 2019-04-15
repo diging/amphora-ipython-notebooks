@@ -6,7 +6,9 @@ def readFile(filename,size, val):
     doi_found = False
     fileObj = open(filename, "r")
     data = fileObj.read(size)
-    if str(val[0]) in data:
+    fileObj.close()
+    data = data.replace(" ","")    
+    if str(val[0]).replace(" ","") in data:
         acc += 35
         # doi_found = True
     if str(val[1]) in data:
