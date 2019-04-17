@@ -35,34 +35,44 @@ for i, exl in enumerate(metaList):
             listOfFiles += [os.path.join(dirpath, file)]
     
     sizes = list()
-    sizes += [int(os.stat(file).st_size / 3) for file in listOfFiles]
+    for file in listOfFiles:
+        size = int(os.stat(file).st_size)
+        if size < 3000:
+            sizes.append(size)
+        else:
+            sizes.append(int(size/3))
+        # sizes.append(int(size/3))
     
     # print(listOfFiles[0], sizes[0])
     # break
 
     checkFor = (excel_IO.readMeta(exl))
 
-    title = [""] * len(checkFor)
-    year = [""] * len(checkFor)
-    volume = [""] * len(checkFor)
-    DOI = [""] * len(checkFor)
-    PII = [""] * len(checkFor)
-    location = [""] * len(checkFor)
-    accuracy = [""] * len(checkFor)
-    extra = {}
+    title       = [""] * len(checkFor)
+    year        = [""] * len(checkFor)
+    volume      = [""] * len(checkFor)
+    start       = [""] * len(checkFor)
+    end         = [""] * len(checkFor)
+    DOI         = [""] * len(checkFor)
+    PII         = [""] * len(checkFor)
+    location    = [""] * len(checkFor)
+    accuracy    = [""] * len(checkFor)
+    extra       = {}
     
     for index,val in enumerate(checkFor):
         
-        title[index] = val[0]
-        year[index] = val[1]
-        volume[index] = val[2]
-        DOI[index] = val[3]
-        PII[index] = val[4]
-        maxAcc = 0
-        loc = ''
-        j = 0
+        title[index]    = val[0]
+        year[index]     = val[1]
+        volume[index]   = val[2]
+        start[index]    = val[3]
+        end[index]      = val[4]
+        DOI[index]      = val[5]
+        PII[index]      = val[6]
+        maxAcc          = 0
+        loc             = ''
+        j               = 0
 
-        # if val[1] <= 2005:
+        # if val[1] != 2012:
         #     continue
 
         for i, (target, size) in enumerate(zip(listOfFiles, sizes)):
@@ -83,7 +93,7 @@ for i, exl in enumerate(metaList):
                     # if maxAcc > 64:
                     #     print(val, loc, maxAcc)
             
-            if maxAcc > 44:
+            if maxAcc > 39:
 
                 extra[val] = loc
                 
@@ -116,17 +126,19 @@ for i, exl in enumerate(metaList):
         if val in extra_val:
             continue
 
-        # if val[1] <= 2005:
+        # if val[1] != 2012:
         #     continue
 
-        title[index] = val[0]
-        year[index] = val[1]
-        volume[index] = val[2]
-        DOI[index] = val[3]
-        PII[index] = val[4]
-        maxAcc = 0
-        loc = ''
-        j = 0
+        title[index]    = val[0]
+        year[index]     = val[1]
+        volume[index]   = val[2]
+        start[index]    = val[3]
+        end[index]      = val[4]
+        DOI[index]      = val[5]
+        PII[index]      = val[6]
+        maxAcc          = 0
+        loc             = ''
+        j               = 0
 
         for i, (target, size) in enumerate(zip(listOfFiles, sizes)):
 
@@ -145,7 +157,9 @@ for i, exl in enumerate(metaList):
                 # if maxAcc > 64:
                 #     print(val, loc, maxAcc)
             
-            if maxAcc > 44:
+            if maxAcc > 39:
+
+                extra[val] = loc
                 
                 if(loc):
                     relative_loc = os.path.relpath(loc)
@@ -165,6 +179,8 @@ for i, exl in enumerate(metaList):
                 
                 accuracy[index]=(maxAcc)
 
+    extra_loc = set(extra.values())
+
     for srcfile in listOfFiles:
         if not srcfile in extra_loc:
             assert not os.path.isabs(srcfile)
@@ -173,5 +189,5 @@ for i, exl in enumerate(metaList):
             shutil.copy(srcfile, dstdir)
 
     # print(location,accuracy)
-    excel_IO.writeMeta(exl,title,year,volume,DOI,location,accuracy)
+    excel_IO.writeMeta(exl,title,year,volume,start,end,DOI,location,accuracy)
     break

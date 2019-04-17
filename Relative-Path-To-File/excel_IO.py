@@ -8,32 +8,36 @@ def readMeta(fileName):
     titles = df["Title"]
     years = df["Year"]
     volumes = df["Volume"]
+    start = df["Page start"]
+    end = df["Page end"]
     dois = df["DOI"]
     values = []
-    for val in zip(titles,years,volumes,dois):
-        if isinstance(val[3],str):
+    for val in zip(titles,years,volumes,start,end,dois):
+        if isinstance(val[5],str):
             try:
-                pii = tuple([(str(val[3]).split('/'))[1]])
+                pii = tuple([(str(val[5]).split('/'))[1]])
             except:
-                print(str(val[3]))
-        elif isnan(val[3]):
+                print(str(val[5]))
+        elif isnan(val[5]):
             pii = tuple([str("")])
         val += pii
         # print(val + pii)
         if val[2] == '':
-            val = (val[0], val[1], str(val[2]), val[3], val[4])
+            val = (val[0], val[1], str(val[2]), val[3], val[4], val[5], val[6])
         elif not isnan(val[2]):
-            val = (val[0], val[1], int(val[2]), val[3], val[4])
+            val = (val[0], val[1], int(val[2]), val[3], val[4], val[5], val[6])
         # print(val)
         values.append(val)
     return values
 
-def writeMeta(filename,title,year,volume,DOI,loc,acc):
+def writeMeta(filename,title,year,volume,start,end,DOI,loc,acc):
     df = pd.DataFrame(
         {
             "Title"     : title,
             "Year"      : year,
             "Volume"    : volume,
+            "Page Start": start,
+            "Page End"  : end,
             "DOI"       : DOI,
             "Location"  : loc,
             "Accuracy"  : acc
