@@ -41,8 +41,13 @@ import os.path
 def readFile(filename,size, val):
     acc = 0
     found = False
-    fileObj = open(filename, "r")
-    data = fileObj.read(size)
+    try:
+        fileObj = open(filename, "r")
+        data = fileObj.read(size)
+    except UnicodeDecodeError:
+        print(filename)
+        fileObj = open(filename, "r", encoding = "ISO-8859-1")
+        data = fileObj.read(size)
     fileObj.close()
     data = data.replace(" ","")
     doi = str(val[5])
@@ -51,7 +56,7 @@ def readFile(filename,size, val):
     last = str(val[4])
     if len(doi) > 6 and doi in data:
         acc += 40
-        doi_found = True
+        found = True
     elif len(pii) > 6 and pii in data:
         acc += 40
         found = True
