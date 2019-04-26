@@ -1,7 +1,10 @@
+from sys import argv
 import os
 import excel_IO
 import file_IO
 import shutil
+
+fileNum = int(argv[1]) - 1
 
 metadata = "./5_Metadata"
 folder = "./1_JournalCorpus_txt/"
@@ -22,6 +25,11 @@ for root, dirs, files in os.walk(metadata):
 # print(metaList)
 
 for i, exl in enumerate(metaList):
+
+    if i != fileNum:
+        continue
+
+    print(exl)
     
     listOfFiles = list()
     
@@ -29,7 +37,7 @@ for i, exl in enumerate(metaList):
         
         for file in filenames:
             
-            if file == '.DS_Store' or file == '_DS_Store':
+            if file == '.DS_Store' or file == '_DS_Store' or file == 'DEVONtech_storage':
                 continue
             
             listOfFiles += [os.path.join(dirpath, file)]
@@ -37,11 +45,13 @@ for i, exl in enumerate(metaList):
     sizes = list()
     for file in listOfFiles:
         size = int(os.stat(file).st_size)
-        # if size < 3000:
-        #     sizes.append(size)
-        # else:
-        #     sizes.append(int(size/3))
-        sizes.append(int(size/3))
+        if size < 3000:
+            sizes.append(size)
+        elif size > 3000 and size < 6000:
+            sizes.append(int(size*2/3))
+        else:
+            sizes.append(int(size/3))
+        # sizes.append(int(size/3))
     
     # print(listOfFiles[0], sizes[0])
     # break
@@ -93,7 +103,7 @@ for i, exl in enumerate(metaList):
                     # if maxAcc > 64:
                     #     print(val, loc, maxAcc)
             
-            if maxAcc > 39:
+            if maxAcc > 19:
 
                 extra[val] = loc
                 
@@ -157,7 +167,7 @@ for i, exl in enumerate(metaList):
                 # if maxAcc > 64:
                 #     print(val, loc, maxAcc)
             
-            if maxAcc > 39:
+            if maxAcc > 19:
 
                 extra[val] = loc
                 
@@ -190,4 +200,3 @@ for i, exl in enumerate(metaList):
 
     # print(location,accuracy)
     excel_IO.writeMeta(exl,title,year,volume,start,end,DOI,location,accuracy)
-    break

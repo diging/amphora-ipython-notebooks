@@ -72,8 +72,11 @@ def readFile(filename,size, val):
 
     if len(first) < 4:
         id1 = str(val[2]) + str(val[1])
+        id2 = id3 = str(val[2])
     if len(first) > 4 and len(last) < 4:
         id1 = str(val[2]) + str(val[1]) + first
+        id2 = str(val[2])
+        id3 = first+str(val[1])
     else:    
         id1 = str(val[2])+str(val[1])+ first+ last
         id2 = str(val[2])
@@ -86,6 +89,6 @@ def readFile(filename,size, val):
         if str(val[1]) in data:
             if str(val[2]) in data:
                 if first+last in data:
-                    acc += 40
+                    acc += 20
                     found = True
     return (filename, acc, found)
