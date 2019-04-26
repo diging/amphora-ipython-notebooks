@@ -22,7 +22,7 @@ def readMeta(fileName):
             pii = tuple([str("")])
         val += pii
         # print(val + pii)
-        if isinstance(val[2],str):
+        if val[2] == '':
             val = (val[0], val[1], str(val[2]), val[3], val[4], val[5], val[6])
         elif not isnan(val[2]):
             val = (val[0], val[1], int(val[2]), val[3], val[4], val[5], val[6])

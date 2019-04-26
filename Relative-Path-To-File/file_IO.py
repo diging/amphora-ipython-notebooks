@@ -50,10 +50,16 @@ def readFile(filename,size, val):
         data = fileObj.read(size)
     fileObj.close()
     data = data.replace(" ","")
+    symbols = "~!@#$%^&*()_+=-`,.?><:;[]}/{|"
     doi = str(val[5])
     pii = str(val[6])
-    first = str(val[3])
-    last = str(val[4])
+    for symbol in symbols:
+        data = data.replace(symbol,"")
+        doi = doi.replace(symbol,"")
+        pii = pii.replace(symbol,"")
+        # print(doi)
+    first = str(val[4])
+    last = str(val[5])
     if len(doi) > 6 and doi in data:
         acc += 40
         found = True
@@ -65,16 +71,21 @@ def readFile(filename,size, val):
         # found = True
 
     if len(first) < 4:
-        id1 = str(val[2])+ "(" + str(val[1]) + ")"
-        id2 = ""
+        id1 = str(val[2]) + str(val[1])
     if len(first) > 4 and len(last) < 4:
-        id1 = str(val[2])+ "(" + str(val[1]) + ")" + first
-        id2 = ""
+        id1 = str(val[2]) + str(val[1]) + first
     else:    
-        id1 = str(val[2])+ "(" + str(val[1]) + ")" + first + "-" + last
-        id2 = str(val[2])+ "(" + str(val[1]) + ")" + first + "?" + last
+        id1 = str(val[2])+str(val[1])+ first+ last
+        id2 = str(val[2])
+        id3 = first+last+str(val[1])
         
-    if id1 in data or id2 in data:
+    if id1 in data or (id2 in data and id3 in data):
         acc += 40
         found = True
+    elif not found:
+        if str(val[1]) in data:
+            if str(val[2]) in data:
+                if first+last in data:
+                    acc += 40
+                    found = True
     return (filename, acc, found)
