@@ -58,8 +58,14 @@ def readFile(filename,size, val):
         doi = doi.replace(symbol,"")
         pii = pii.replace(symbol,"")
         # print(doi)
-    first = str(val[3])
-    last = str(val[4])
+    try:
+        first = str(int(val[3]))
+    except:
+        first = str(val[3])
+    try:
+        last = str(int(val[4]))
+    except:
+        last = str(val[4])
     year = str(val[1])
     vol = str(val[2])
     if len(doi) > 6 and doi in data:
@@ -85,6 +91,8 @@ def readFile(filename,size, val):
         id2 = vol + first + last + year
         id3 = first + last + year 
         id4 = vol
+    
+    # print(id1,id2,id3,id4)
         
     if id1 in data or id2 in data or (id3 in data and id4 in data):
         acc += 40
