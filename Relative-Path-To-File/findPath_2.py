@@ -22,14 +22,14 @@ for root, dirs, files in os.walk(metadata):
         
         metaList += [os.path.join(root,file)]    
 
-# print(metaList)
+print(metaList[fileNum])
 
 for i, exl in enumerate(metaList):
 
     if i != fileNum:
         continue
 
-    print(exl)
+    print(i,exl)
     
     listOfFiles = list()
     
@@ -198,5 +198,5 @@ for i, exl in enumerate(metaList):
             os.makedirs(dstdir, exist_ok=True)
             shutil.copy(srcfile, dstdir)
 
-    # print(location,accuracy)
+    print(location,accuracy)
     excel_IO.writeMeta(exl,title,year,volume,start,end,DOI,location,accuracy)

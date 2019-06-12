@@ -45,7 +45,7 @@ def readFile(filename,size, val):
         fileObj = open(filename, "r")
         data = fileObj.read(size)
     except UnicodeDecodeError:
-        print(filename)
+        # print(filename)
         fileObj = open(filename, "r", encoding = "ISO-8859-1")
         data = fileObj.read(size)
     fileObj.close()
@@ -58,8 +58,10 @@ def readFile(filename,size, val):
         doi = doi.replace(symbol,"")
         pii = pii.replace(symbol,"")
         # print(doi)
-    first = str(val[4])
-    last = str(val[5])
+    first = str(val[3])
+    last = str(val[4])
+    year = str(val[1])
+    vol = str(val[2])
     if len(doi) > 6 and doi in data:
         acc += 40
         found = True
@@ -71,24 +73,26 @@ def readFile(filename,size, val):
         # found = True
 
     if len(first) < 4:
-        id1 = str(val[2]) + str(val[1])
-        id2 = id3 = str(val[2])
+        id1 = id2 = vol + year
+        id3 = id4 = vol
     if len(first) > 4 and len(last) < 4:
-        id1 = str(val[2]) + str(val[1]) + first
-        id2 = str(val[2])
-        id3 = first+str(val[1])
+        id1 = vol + year + first
+        id2 = vol + first + year
+        id3 = first + year
+        id4 = vol
     else:    
-        id1 = str(val[2])+str(val[1])+ first+ last
-        id2 = str(val[2])
-        id3 = first+last+str(val[1])
+        id1 = vol + year + first + last
+        id2 = vol + first + last + year
+        id3 = first + last + year 
+        id4 = vol
         
-    if id1 in data or (id2 in data and id3 in data):
+    if id1 in data or id2 in data or (id3 in data and id4 in data):
         acc += 40
         found = True
     elif not found:
-        if str(val[1]) in data:
-            if str(val[2]) in data:
-                if first+last in data:
+        if year in data:
+            if vol in data:
+                if first + last in data:
                     acc += 20
                     found = True
     return (filename, acc, found)
