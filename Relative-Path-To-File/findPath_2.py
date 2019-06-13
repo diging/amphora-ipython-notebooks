@@ -14,13 +14,13 @@ parent = os.listdir(folder)[1:]
 metaList = list()
 
 for root, dirs, files in os.walk(metadata):
-    
+
     for file in files:
-        
-        if file == '.DS_Store' or file == '_DS_Store':
+
+        if file == ".DS_Store" or file == "_DS_Store":
             continue
-        
-        metaList += [os.path.join(root,file)]    
+
+        metaList += [os.path.join(root, file)]
 
 print(metaList[fileNum])
 
@@ -29,58 +29,62 @@ for i, exl in enumerate(metaList):
     if i != fileNum:
         continue
 
-    print(i,exl)
-    
+    print(i, exl)
+
     listOfFiles = list()
-    
+
     for dirpath, dirnames, filenames in os.walk(folder + parent[i]):
-        
+
         for file in filenames:
-            
-            if file == '.DS_Store' or file == '_DS_Store' or file == 'DEVONtech_storage':
+
+            if (
+                file == ".DS_Store"
+                or file == "_DS_Store"
+                or file == "DEVONtech_storage"
+            ):
                 continue
-            
+
             listOfFiles += [os.path.join(dirpath, file)]
-    
+
     sizes = list()
     for file in listOfFiles:
         size = int(os.stat(file).st_size)
         if size < 3000:
             sizes.append(size)
         elif size > 3000 and size < 6000:
-            sizes.append(int(size*2/3))
+            sizes.append(int(size * 2 / 3))
         else:
-            sizes.append(int(size/3))
+            sizes.append(int(size / 3))
         # sizes.append(int(size/3))
-    
+
     # print(listOfFiles[0], sizes[0])
     # break
 
-    checkFor = (excel_IO.readMeta(exl))
+    checkFor = excel_IO.readMeta(exl)
 
-    title       = [""] * len(checkFor)
-    year        = [""] * len(checkFor)
-    volume      = [""] * len(checkFor)
-    start       = [""] * len(checkFor)
-    end         = [""] * len(checkFor)
-    DOI         = [""] * len(checkFor)
-    PII         = [""] * len(checkFor)
-    location    = [""] * len(checkFor)
-    accuracy    = [""] * len(checkFor)
-    extra       = {}
-    
-    for index,val in enumerate(checkFor):
-        
-        title[index]    = val[0]
-        year[index]     = val[1]
-        volume[index]   = val[2]
-        start[index]    = val[3]
-        end[index]      = val[4]
-        DOI[index]      = val[5]
-        PII[index]      = val[6]
-        maxAcc          = 0
-        loc             = ''
-        j               = 0
+    title = [""] * len(checkFor)
+    year = [""] * len(checkFor)
+    volume = [""] * len(checkFor)
+    start = [""] * len(checkFor)
+    end = [""] * len(checkFor)
+    DOI = [""] * len(checkFor)
+    PII = [""] * len(checkFor)
+    location = [""] * len(checkFor)
+    accuracy = [""] * len(checkFor)
+    extra = {}
+
+    for index, val in enumerate(checkFor):
+
+        title[index] = val[0]
+        year[index] = val[1]
+        volume[index] = val[2]
+        start[index] = val[3]
+        end[index] = val[4]
+        DOI[index] = val[5]
+        PII[index] = val[6]
+        maxAcc = 0
+        loc = ""
+        j = 0
 
         # if val[1] != 2012:
         #     continue
@@ -93,23 +97,23 @@ for i, exl in enumerate(metaList):
 
             if not str(val[1]) in target:
                 continue
-            
+
             else:
                 link, acc, found = file_IO.readFile(target, size, val)
-                
+
                 if acc > maxAcc and found:
                     loc = link
                     maxAcc = acc
                     # if maxAcc > 64:
                     #     print(val, loc, maxAcc)
-            
+
             if maxAcc > 19:
 
                 extra[val] = loc
-                
-                if(len(loc) > 2):
+
+                if len(loc) > 2:
                     relative_loc = os.path.relpath(loc)
-                    location[index]=(relative_loc)
+                    location[index] = relative_loc
 
                     # Remove the file
                     # os.remove(target[0])
@@ -121,17 +125,17 @@ for i, exl in enumerate(metaList):
                     # del sizes[i]
 
                 else:
-                    location[index]=(loc)
-                
-                accuracy[index]=(maxAcc)
-        
+                    location[index] = loc
+
+                accuracy[index] = maxAcc
+
         # Remove val from List
         # del checkFor[index]
 
     extra_loc = set(extra.values())
     extra_val = set(extra.keys())
 
-    for index,val in enumerate(checkFor):
+    for index, val in enumerate(checkFor):
 
         if val in extra_val:
             continue
@@ -139,16 +143,16 @@ for i, exl in enumerate(metaList):
         # if val[1] != 2012:
         #     continue
 
-        title[index]    = val[0]
-        year[index]     = val[1]
-        volume[index]   = val[2]
-        start[index]    = val[3]
-        end[index]      = val[4]
-        DOI[index]      = val[5]
-        PII[index]      = val[6]
-        maxAcc          = 0
-        loc             = ''
-        j               = 0
+        title[index] = val[0]
+        year[index] = val[1]
+        volume[index] = val[2]
+        start[index] = val[3]
+        end[index] = val[4]
+        DOI[index] = val[5]
+        PII[index] = val[6]
+        maxAcc = 0
+        loc = ""
+        j = 0
 
         for i, (target, size) in enumerate(zip(listOfFiles, sizes)):
 
@@ -158,22 +162,22 @@ for i, exl in enumerate(metaList):
             if j != val[1]:
                 j = val[1]
                 print(j)
-            
+
             link, acc, found = file_IO.readFile(target, size, val)
-            
+
             if acc > maxAcc and found:
                 loc = link
                 maxAcc = acc
                 # if maxAcc > 64:
                 #     print(val, loc, maxAcc)
-            
+
             if maxAcc > 19:
 
                 extra[val] = loc
-                
-                if(loc):
+
+                if loc:
                     relative_loc = os.path.relpath(loc)
-                    location[index]=(relative_loc)
+                    location[index] = relative_loc
 
                     # Remove the file
                     # os.remove(target[0])
@@ -185,18 +189,19 @@ for i, exl in enumerate(metaList):
                     # del sizes[i]
 
                 else:
-                    location[index]=(loc)
-                
-                accuracy[index]=(maxAcc)
+                    location[index] = loc
+
+                accuracy[index] = maxAcc
 
     extra_loc = set(extra.values())
 
     for srcfile in listOfFiles:
         if not srcfile in extra_loc:
             assert not os.path.isabs(srcfile)
-            dstdir =  os.path.join(dest, os.path.dirname(srcfile))
+            dstdir = os.path.join(dest, os.path.dirname(srcfile))
             os.makedirs(dstdir, exist_ok=True)
             shutil.copy(srcfile, dstdir)
 
-    print(location,accuracy)
-    excel_IO.writeMeta(exl,title,year,volume,start,end,DOI,location,accuracy)
+    # print(location, accuracy)
+    # excel_IO.writeMeta(exl, title, year, volume, start, end, DOI, location, accuracy)
+
