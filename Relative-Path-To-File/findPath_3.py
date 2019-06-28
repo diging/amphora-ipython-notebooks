@@ -45,8 +45,10 @@ class Journal:
             if i != fileNum:
                 continue
             elif deep == True:
-                path = self.folder
+                print(exl,"(Deep)")
+                path = self.destination
             else:
+                print(exl)
                 path = self.folder + self.parent[i]
             for dirpath, _, filenames in os.walk(path):
                 for file in filenames:
@@ -71,7 +73,12 @@ class Journal:
             else:
                 self.sizes.append(int(size / 3))
 
-    def searchFolder(self, title=False, year=True):
+    def searchFolder(self, title=False, year=True, deep=False):
+        folder_year = 0
+        if deep:
+            directory = os.pardir
+        else:
+            directory = os.curdir
         for index, val in enumerate(self.checkFor):
             if val in self.extra_val:
                 continue
@@ -84,11 +91,10 @@ class Journal:
             self.sheet.PII[index] = val[6]
             maxAcc = 0
             loc = ""
-            j = 0
             for target, size in zip(self.listOfFiles, self.sizes):
-                if j != val[1]:
-                    j = val[1]
-                    print(j)
+                if folder_year != val[1]:
+                    folder_year = val[1]
+                    print(folder_year)
                 if not str(val[1]) in target and year:
                     continue
                 else:
@@ -99,7 +105,7 @@ class Journal:
                 if (maxAcc > 19 and not title) or (maxAcc < 19 and title):
                     self.sheet.extra[val] = loc
                     if len(loc) > 2:
-                        self.sheet.location[index] = os.path.relpath(loc)
+                        self.sheet.location[index] = os.path.relpath(loc,start=directory)
                     else:
                         self.sheet.location[index] = loc
                     self.sheet.accuracy[index] = maxAcc
@@ -132,29 +138,32 @@ class Journal:
             self.sheet.accuracy,
         )
 
-    def singleNoTitle(self, num, deep=False, title=False):
+    def singleSearch(self, num, deep=False, title=False):
         self.findSizes(num, deep)
         self.searchFolder(title)
-        self.searchFolder(title,year=False)
-        self.notFound(title)
+        if not deep:
+            print("\nPass 2:")
+            self.searchFolder(title,year=False)
+            self.notFound(title)
         self.writeExcel()
 
     def simpleSearch(self, deep=False, title=False):
         for num in range(10):
-            self.singleNoTitle(num, deep, title)
+            self.singleSearch(num, deep, title)
 
     def deepSearch(self):
         self.simpleSearch()
-        self.folder = self.destination
         self.simpleSearch(deep=True)
         # self.simpleSearch(title=True)
     
     def titleSearch(self, num, deep=False, title=True):
-        self.singleNoTitle(num,deep)
+        self.singleSearch(num,deep)
         self.searchFolder(title)
         self.notFound(title)
         self.writeExcel()
 
 if __name__ == "__main__":
     journal = Journal()
-    journal.deepSearch()
+    # journal.deepSearch()
+    journal.singleSearch(num=0)
+    journal.singleSearch(num=0, deep=True)
