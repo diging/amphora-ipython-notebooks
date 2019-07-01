@@ -65,8 +65,12 @@ class Journal:
         self.checkFor = None
         self.sheet = None
         self.extra_val = set([])
+    
+    def reset(self):
+        self.extra_val = set([])
 
     def fillJournalList(self):
+        self.metaList = []
         for root, _, files in os.walk(self.metadata):
             for file in files:
                 if not (file == ".DS_Store" or file == "_DS_Store"):
@@ -74,6 +78,7 @@ class Journal:
 
     def fillFolderList(self, fileNum, deep=False):
         self.fillJournalList()
+        self.listOfFiles = []
         for i, exl in enumerate(self.metaList):
             if i != fileNum:
                 continue
@@ -102,6 +107,7 @@ class Journal:
 
     def findSizes(self, fileNum, deep=False):
         self.fillFolderList(fileNum, deep)
+        self.sizes = []
         for file in self.listOfFiles:
             size = int(os.stat(file).st_size)
             if size < 3000:
@@ -175,6 +181,7 @@ class Journal:
             self.searchFolder(title, year=False)
             self.notFound(title)
         self.writeExcel()
+        self.reset()
 
     def simpleSearch(self, deep=False, title=False):
         for num in range(10):
