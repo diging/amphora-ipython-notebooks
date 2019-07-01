@@ -18,6 +18,39 @@ class Sheet:
         self.accuracy = [""] * self.length
         self.extra = {}
 
+    def setSheet(self, val, index):
+        self.title[index] = val[0]
+        self.year[index] = val[1]
+        self.volume[index] = val[2]
+        self.start[index] = val[3]
+        self.end[index] = val[4]
+        self.DOI[index] = val[5]
+        self.PII[index] = val[6]
+
+    def setLocation(self, location, accuracy, index):
+        self.location[index] = location
+        self.accuracy[index] = accuracy
+
+    def getSheet(self):
+        return (
+            self.title,
+            self.year,
+            self.volume,
+            self.start,
+            self.end,
+            self.DOI,
+            self.location,
+            self.accuracy,
+        )
+
+    def setExtra(self, value, location):
+        self.extra[value] = location
+
+    def getExtra(self):
+        values = set(self.extra.keys())
+        locations = set(self.extra.values())
+        return (values, locations)
+
 
 class Journal:
     def __init__(self):
@@ -45,7 +78,7 @@ class Journal:
             if i != fileNum:
                 continue
             elif deep == True:
-                print(exl,"(Deep)")
+                print(exl, "(Deep)")
                 path = self.destination
             else:
                 print(exl)
@@ -82,13 +115,7 @@ class Journal:
         for index, val in enumerate(self.checkFor):
             if val in self.extra_val:
                 continue
-            self.sheet.title[index] = val[0]
-            self.sheet.year[index] = val[1]
-            self.sheet.volume[index] = val[2]
-            self.sheet.start[index] = val[3]
-            self.sheet.end[index] = val[4]
-            self.sheet.DOI[index] = val[5]
-            self.sheet.PII[index] = val[6]
+            self.sheet.setSheet(val, index)
             maxAcc = 0
             loc = ""
             for target, size in zip(self.listOfFiles, self.sizes):
@@ -103,17 +130,16 @@ class Journal:
                         loc = link
                         maxAcc = acc
                 if (maxAcc > 19 and not title) or (maxAcc < 19 and title):
-                    self.sheet.extra[val] = loc
+                    self.sheet.setExtra(val, loc)
                     if len(loc) > 2:
-                        self.sheet.location[index] = os.path.relpath(loc,start=directory)
+                        self.sheet.setLocation(
+                            os.path.relpath(loc, start=directory), maxAcc, index
+                        )
                     else:
-                        self.sheet.location[index] = loc
-                    self.sheet.accuracy[index] = maxAcc
+                        self.sheet.setLocation(loc, maxAcc, index)
                 elif maxAcc > 19 and title:
-                    self.sheet.location[index] = None
-                    self.sheet.accuracy[index] = None
-            self.extra_val = set(self.sheet.extra.keys())
-            self.extra_loc = set(self.sheet.extra.values())
+                    self.sheet.setLocation(None, None, index)
+            self.extra_val, self.extra_loc = self.sheet.getExtra()
 
     def notFound(self, title=False):
         if title:
@@ -126,24 +152,14 @@ class Journal:
                 shutil.copy(srcfile, dstdir)
 
     def writeExcel(self):
-        excel_IO.writeMeta(
-            self.exl,
-            self.sheet.title,
-            self.sheet.year,
-            self.sheet.volume,
-            self.sheet.start,
-            self.sheet.end,
-            self.sheet.DOI,
-            self.sheet.location,
-            self.sheet.accuracy,
-        )
+        excel_IO.writeMeta(self.exl, *self.sheet.getSheet())
 
     def singleSearch(self, num, deep=False, title=False):
         self.findSizes(num, deep)
         self.searchFolder(title)
         if not deep:
             print("\nPass 2:")
-            self.searchFolder(title,year=False)
+            self.searchFolder(title, year=False)
             self.notFound(title)
         self.writeExcel()
 
@@ -155,12 +171,13 @@ class Journal:
         self.simpleSearch()
         self.simpleSearch(deep=True)
         # self.simpleSearch(title=True)
-    
+
     def titleSearch(self, num, deep=False, title=True):
-        self.singleSearch(num,deep)
+        self.singleSearch(num, deep)
         self.searchFolder(title)
         self.notFound(title)
         self.writeExcel()
+
 
 if __name__ == "__main__":
     journal = Journal()
