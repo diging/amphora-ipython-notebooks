@@ -64,7 +64,7 @@ class Journal:
         self.extra_loc = None
         self.checkFor = None
         self.sheet = None
-        self.extra_val = []
+        self.extra_val = set([])
 
     def fillJournalList(self):
         for root, _, files in os.walk(self.metadata):
@@ -78,11 +78,12 @@ class Journal:
             if i != fileNum:
                 continue
             elif deep == True:
-                print(exl, "(Deep)")
+                print("SEARCHING FOR: {} (Deep)".format(exl))
                 path = self.destination
             else:
-                print(exl)
+                print("SEARCHING FOR: {}".format(exl))
                 path = self.folder + self.parent[i]
+            print("SEARCHING IN: {}".format(path))
             for dirpath, _, filenames in os.walk(path):
                 for file in filenames:
                     if not (
@@ -92,7 +93,11 @@ class Journal:
                     ):
                         self.listOfFiles += [os.path.join(dirpath, file)]
             self.exl = exl
-            self.checkFor = excel_IO.readMeta(exl)
+            try:
+                self.checkFor = excel_IO.readMeta(exl)
+                print("SUCCESS: Excel file read.")
+            except:
+                print("FAILED: Excel file read.")
             self.sheet = Sheet(self.checkFor)
 
     def findSizes(self, fileNum, deep=False):
@@ -125,10 +130,13 @@ class Journal:
                 if not str(val[1]) in target and year:
                     continue
                 else:
-                    link, acc, found = file_IO.readFile(target, size, val)
-                    if acc > maxAcc and found:
-                        loc = link
-                        maxAcc = acc
+                    try:
+                        link, acc, found = file_IO.readFile(target, size, val)
+                        if acc > maxAcc and found:
+                            loc = link
+                            maxAcc = acc
+                    except:
+                        print("FAILED: {} read error.".format(target))
                 if (maxAcc > 19 and not title) or (maxAcc < 19 and title):
                     self.sheet.setExtra(val, loc)
                     if len(loc) > 2:
@@ -150,15 +158,20 @@ class Journal:
                 dstdir = os.path.join(self.destination, os.path.dirname(srcfile))
                 os.makedirs(dstdir, exist_ok=True)
                 shutil.copy(srcfile, dstdir)
+        print("SUCCESS: Create Not_Found folder.")
 
     def writeExcel(self):
-        excel_IO.writeMeta(self.exl, *self.sheet.getSheet())
+        try:
+            excel_IO.writeMeta(self.exl, *self.sheet.getSheet())
+            print("SUCCESS: Excel file write.")
+        except:
+            print("FAILED: Excel file write.")
 
     def singleSearch(self, num, deep=False, title=False):
         self.findSizes(num, deep)
         self.searchFolder(title)
         if not deep:
-            print("\nPass 2:")
+            print("Pass 2:")
             self.searchFolder(title, year=False)
             self.notFound(title)
         self.writeExcel()
@@ -182,5 +195,5 @@ class Journal:
 if __name__ == "__main__":
     journal = Journal()
     # journal.deepSearch()
-    journal.singleSearch(num=0)
-    journal.singleSearch(num=0, deep=True)
+    journal.singleSearch(num=3)
+    journal.singleSearch(num=3, deep=True)
