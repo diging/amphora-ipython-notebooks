@@ -10,9 +10,9 @@ class Sheet:
 
     def parse_excel_file(self):
         self.articles = []
-        df = pd.read_excel(self.file_name)
+        self.df = pd.read_excel(self.file_name)
         
-        for i, row in df.iterrows():
+        for i, row in self.df.iterrows():
             title = row["Title"]
             pmid = row["PMID"]
             pmcid = row["PMCID"]
@@ -33,14 +33,28 @@ class Sheet:
                     "pmid": pmid,
                     "pmcid": pmcid,
                     "year": year,
-                    "authors": authors
+                    "authors": authors,
+                    "index": i
                 })
+
+        # Add columns - text file path, text, score
+        self.df["Text file"] = ""
+        self.df["Raw text"] = ""
+        self.df["Score"] = ""
+
+    def append_found_text_info(self, index, path, raw_text, score):
+        self.df.loc[index, "Text file"] = path
+        self.df.loc[index, "Raw text"] = raw_text
+        self.df.loc[index, "Score"] = str(score)
+
+    def save(self, path):
+        self.df.to_excel(path)
 
 class Journal:
     def __init__(self):
         self.metadata = "/Users/nowke/Documents/diging/metadata"
         self.folder = "/Users/nowke/Documents/diging/files/"
-        self.destination = "/Users/nowke/Documents/diging/not_found"
+        self.destination_not_found = "/Users/nowke/Documents/diging/not_found"
         self.files = []
         self.meta_files = []
 
@@ -66,19 +80,16 @@ class Journal:
         sheet = Sheet(self.meta_files[0])
         print(f"Found {len(sheet.articles)} inside the metadata sheet\n")
 
-        for i, text_file in enumerate(self.files):
+        for i, text_file in enumerate(self.files[:5]):
             print(f"Scanning File ({i + 1}/{len(self.files)}) {text_file}")
             for article_meta in sheet.articles:
                 score = self.get_score_for_text(sheet, text_file, article_meta)
-                # if score >= 30:
-                #     print("===============")
-                #     print(f"Matching {text_file} with {article_meta['title']}")
-                #     print(score)
-                #     print("===============")
-                #     print()
                 if score >= 80:
+                    self.found_match(sheet, text_file, article_meta, score)
                     print("Matched all")
                     break
+
+        sheet.save(Path(self.metadata) / "meta.xlsx")
 
     def get_score_for_text(self, sheet, text_file, article_meta):
         # Match contents of `text_file` and `article_meta`
@@ -111,11 +122,15 @@ class Journal:
                 author_match_percentage = author_matches / len(article_meta["authors"])
                 score += 30 * author_match_percentage
 
-            # if score >= 30:
-            #     print("Authors", article_meta["authors"])
-            #     print(f"PMID {pmid}, PMCID {pmcid}")
-            
             return score
+
+    def found_match(self, sheet, text_file, article_meta, score):
+        with open(text_file, encoding='utf8') as f:
+            data = f.read()
+            raw_text = '"' + data.replace("\n", " ") + '"'
+            sheet.append_found_text_info(
+                article_meta["index"], text_file, raw_text, score
+            )
 
 
     def get_file_size_to_read(self, text_file):
