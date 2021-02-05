@@ -2,6 +2,7 @@ import re
 import pandas as pd
 from math import isnan
 from pathlib import Path
+import shutil
 
 class Sheet:
     def __init__(self, file_name):
@@ -80,14 +81,21 @@ class Journal:
         sheet = Sheet(self.meta_files[0])
         print(f"Found {len(sheet.articles)} inside the metadata sheet\n")
 
-        for i, text_file in enumerate(self.files[:5]):
+        for i, text_file in enumerate(self.files):
             print(f"Scanning File ({i + 1}/{len(self.files)}) {text_file}")
+            found = False
             for article_meta in sheet.articles:
                 score = self.get_score_for_text(sheet, text_file, article_meta)
                 if score >= 80:
                     self.found_match(sheet, text_file, article_meta, score)
+                    found = True
                     print("Matched all")
                     break
+            
+            if not found:
+                # Not match
+                print("No match found")
+                self.copy_file_not_found(text_file)
 
         sheet.save(Path(self.metadata) / "meta.xlsx")
 
@@ -132,6 +140,12 @@ class Journal:
                 article_meta["index"], text_file, raw_text, score
             )
 
+    def copy_file_not_found(self, text_file):
+        # Copy `text_file` to `self.destination_not_found` folder
+        shutil.copyfile(
+            text_file, 
+            Path(self.destination_not_found) / Path(text_file).name
+        )
 
     def get_file_size_to_read(self, text_file):
         size = text_file.stat().st_size
