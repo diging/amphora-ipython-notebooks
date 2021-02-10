@@ -49,19 +49,23 @@ class Sheet:
         self.df.loc[index, "Score"] = str(score)
 
     def save(self, path):
-        self.df.to_excel(path)
+        self.df.to_excel(
+            path, 
+            columns=self.df.columns.to_list()[-3:] + self.df.columns.to_list()[:-3],
+            index=False
+        )
 
 class Journal:
     def __init__(self):
-        self.metadata = "/Users/nowke/Documents/diging/metadata"
+        self.metadata = "/Users/nowke/Documents/diging/metadata/Cleaned Data 1900-2017.xlsx"
         self.folder = "/Users/nowke/Documents/diging/files/"
         self.destination_not_found = "/Users/nowke/Documents/diging/not_found"
+        self.destination_found = "/Users/nowke/Documents/diging/found.xlsx"
         self.files = []
         self.meta_files = []
 
     def search(self):
         self.scan_folder()
-        self.get_metadata_files()
         self.perform_match()
 
     def scan_folder(self):
@@ -70,18 +74,13 @@ class Journal:
         self.files = text_files
         print(f"Found {len(self.files)} inside '{folder_path}'")
 
-    def get_metadata_files(self):
-        folder_path = Path(self.metadata)
-        meta_files = list(folder_path.glob("**/*.xlsx"))
-        self.meta_files = meta_files
-
     def perform_match(self):
-        print(f"Scanning metadata - '{self.meta_files[0]}'")
+        print(f"Scanning metadata - '{self.metadata}'")
         
-        sheet = Sheet(self.meta_files[0])
+        sheet = Sheet(self.metadata)
         print(f"Found {len(sheet.articles)} inside the metadata sheet\n")
 
-        for i, text_file in enumerate(self.files):
+        for i, text_file in enumerate(self.files[:5]):
             print(f"Scanning File ({i + 1}/{len(self.files)}) {text_file}")
             found = False
             for article_meta in sheet.articles:
@@ -97,7 +96,7 @@ class Journal:
                 print("No match found")
                 self.copy_file_not_found(text_file)
 
-        sheet.save(Path(self.metadata) / "meta.xlsx")
+        sheet.save(self.destination_found)
 
     def get_score_for_text(self, sheet, text_file, article_meta):
         # Match contents of `text_file` and `article_meta`
@@ -124,7 +123,7 @@ class Journal:
                     last_name = author[1].strip().replace("’", "'").replace("-", "‐")
                     first_name = author[0].strip().replace("’", "'").replace("-", "‐")
                     name = f"{last_name} {first_name}"
-                    if name in data_cleaned:
+                    if name.replace(".", "") in data_cleaned.replace(".", ""):
                         author_matches += 1
 
                 author_match_percentage = author_matches / len(article_meta["authors"])
