@@ -6,14 +6,16 @@ import logging
 #
 # You can override the configuration using environment variables
 # Example:
-#   $ export METADATA_FILE="/path/to/meta/file.xlsx"
+#   $ export DIRECTORY = "/Users/user/Documents"
+#   $ export METADATA_FILE="path/to/meta/file.xlsx"
 # =============================================================================
 
 # Paths
-METADATA_FILE = "/Users/nowke/Documents/diging/metadata/Cleaned Data 1900-2017.xlsx"
-TEXT_FILES_FOLDER = "/Users/nowke/Documents/diging/files"
-NOT_FOUND_FOLDER = "/Users/nowke/Documents/diging/not_found"
-FOUND_METADATA = "/Users/nowke/Documents/diging/found.xlsx"
+DIRECTORY = "."
+METADATA_FILE = "metadata/Cleaned Data 1900-2017.xlsx"
+TEXT_FILES_FOLDER = "files"
+NOT_FOUND_FOLDER = "not_found"
+FOUND_METADATA = "found.xlsx"
 
 # Misc
 FLAG_USE_ABSTRACT = False
@@ -51,6 +53,7 @@ META_COL_RAW_TEXT = "Raw text"
 # DO NOT EDIT BELOW
 # =============================================================================
 config = {
+    "parent_dir": os.environ.get("DIRECTORY", DIRECTORY),
     "metadata": os.environ.get("METADATA_FILE", METADATA_FILE),
     "text_files_folder": os.environ.get(
         "TEXT_FILES_FOLDER", TEXT_FILES_FOLDER

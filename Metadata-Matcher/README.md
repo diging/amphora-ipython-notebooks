@@ -6,6 +6,7 @@ This script is used for matching journal articles and metadata. Requires Python 
 
 Set the following configurations in `config.py`
 
+* `DIRECTORY` - Path to the parent folder containing all relevant files
 * `METADATA_FILE` - Path to journal metadata file: supports `.xlsx` and `.csv` files
 * `TEXT_FILES_FOLDER` - Folder containing all the raw journal article text files. Supports nested folder structure
 * `NOT_FOUND_FOLDER` - Path to an empty folder. All the unmatched raw text files will be copied here

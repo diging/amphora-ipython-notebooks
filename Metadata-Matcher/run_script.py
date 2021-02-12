@@ -9,10 +9,11 @@ from utils import Sheet
 
 class Journal:
     def __init__(self, config):
-        self.metadata = config["metadata"]
-        self.folder = config["text_files_folder"]
-        self.destination_not_found = config["destination_not_found"]
-        self.destination_found = config["destination_found"]
+        self.parent_dir = Path(config["parent_dir"])
+        self.metadata = self.parent_dir / config["metadata"]
+        self.folder = self.parent_dir / config["text_files_folder"]
+        self.destination_not_found = self.parent_dir / config["destination_not_found"]
+        self.destination_found = self.parent_dir / config["destination_found"]
         self.use_abstract = config["use_abstract"]
         self.files = []
         self.config = config
@@ -41,7 +42,7 @@ class Journal:
         """
         logging.info(f"Scanning metadata - '{self.metadata}'")
         self.sheet = Sheet(
-            self.metadata, self.config['columns'], use_abstract=self.use_abstract)
+            str(self.metadata), self.config['columns'], use_abstract=self.use_abstract)
         logging.info(
             f"Found {len(self.sheet.articles)} rows inside the metadata sheet")
 
